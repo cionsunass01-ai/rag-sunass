@@ -1,0 +1,45 @@
+name: RAG SUNASS Daily Batch
+
+on:
+  schedule:
+    - cron: '0 13 * * *'   # 8:00 AM Perú (UTC-5)
+  workflow_dispatch:       # Permite ejecutarlo manualmente
+
+jobs:
+  run-rag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies (Poppler + Tesseract)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-spa
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install faiss-cpu
+
+      - name: Create folders
+        run: |
+          mkdir -p pdfs
+          mkdir -p resultados
+
+      - name: Run RAG batch
+        run: |
+          python main.py --input ./pdfs --output ./resultados
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-json
+          path: resultados/
