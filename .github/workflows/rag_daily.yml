@@ -3,7 +3,7 @@ name: RAG SUNASS Daily Batch
 on:
   schedule:
     - cron: '0 13 * * *'   # 8:00 AM Perú (UTC-5)
-  workflow_dispatch:       # Permite ejecutarlo manualmente
+  workflow_dispatch:
 
 jobs:
   run-rag:
@@ -29,15 +29,20 @@ jobs:
           pip install -r requirements.txt
           pip install faiss-cpu
 
-      - name: Create folders
-        run: |
-          mkdir -p pdfs
-          mkdir -p resultados
+      # 🔹 Descargar PDFs desde Google Drive
+      - name: Download PDFs from Drive
+        run: python drive_downloader.py
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
 
+      # 🔹 Ejecutar RAG
       - name: Run RAG batch
-        run: |
-          python main.py --input ./pdfs --output ./resultados
+        run: python main.py --input ./pdfs --output ./resultados
 
+      # 🔹 Guardar resultados como artifact descargable
       - name: Upload results as artifact
         uses: actions/upload-artifact@v4
         with:
