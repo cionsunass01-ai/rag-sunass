@@ -1,0 +1,10 @@
+torch
+numpy
+PyMuPDF
+pytesseract
+pdf2image
+Pillow
+sentence-transformers
+langchain
+langchain-community
+faiss-cpu
