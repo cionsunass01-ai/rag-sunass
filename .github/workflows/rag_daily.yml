@@ -42,7 +42,16 @@ jobs:
       - name: Run RAG batch
         run: python main.py --input ./pdfs --output ./resultados
 
-      # 🔹 Guardar resultados como artifact descargable
+      # 🔹 Subir JSON generados a Drive
+      - name: Upload JSON to Drive
+        run: python drive_uploader.py
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          DRIVE_RESULTS_FOLDER_ID: ${{ secrets.DRIVE_RESULTS_FOLDER_ID }}
+
+      # 🔹 Guardar resultados como artifact (opcional)
       - name: Upload results as artifact
         uses: actions/upload-artifact@v4
         with:
